@@ -28,8 +28,8 @@ exec wish "$0" ${1+"$@"}
 package require Tk
 
 if {[tk windowingsystem] == "win32"} {
-#    proc cc_cmd {src exe} { return "g++ -x c++ -std=c++0x -Wl,--enable-auto-import -o $exe $src" }
-    proc cc_cmd {src exe} { return "cl $src /nologo /TP /EHsc /GR /Fo$src.obj /Fe$exe" }
+    proc cc_cmd {src exe} { return "g++ -x c++ -std=c++0x -Wl,--enable-auto-import -o $exe $src" }
+#    proc cc_cmd {src exe} { return "cl $src /nologo /TP /EHsc /GR /Fo$src.obj /Fe$exe" }
 } else {
     proc cc_cmd {src exe} { return "g++ -x c++ -std=c++0x -o $exe $src" }
 }
@@ -169,35 +169,7 @@ proc compile {} {
     update
 
     if {![regexp {\mmain\M} $text]} {
-	puts $src "#include <exception>"
-	puts $src "#include <iostream>"
-	if {[string first vector $text] >= 0} { puts $src "#include <vector>" }
-	if {[regexp "\mmap\M" $text]} { puts $src "#include <map>" }
-	if {[regexp "\mw?string\M" $text]} { puts $src "#include <string>" }
-	if {[string first printf "$text"] >= 0} { puts $src "#include <cstdio>" }
-    	set program_text ""
-	set line_count 0
-	set first_line 1
-	foreach line [split $text "\n"] {
-	    incr line_count
-	    if {[regexp "^#" $line]} {
-		puts $src $line
-	    } else {
-		if {![string length $program_text]} {
-		    set first_line $line_count
-		}
-		append program_text $line "\n"
-	    }
-	}
-	puts $src "int main (int argc, char* argv\[\])"
-	puts $src "try \{"
-	puts $src "using namespace std;"
-	puts $src "#line $first_line"
-    	puts $src $program_text
-	puts $src ";return 0;"
-	puts $src "\} catch (std::exception& X) \{"
-	puts $src "  std::cerr << \"Exception: \" << X.what() << std::endl;"
-	puts $src "  return 1; \}"
+	cpp_preformat $src $text
     } else {
     	puts $src $text
     }
@@ -226,4 +198,49 @@ proc compile {} {
     file delete -- $src_name ${src_name}.obj ${src_name}.o
     if {$::have_ttk} { ttk::setCursor . standard }
     return $exe_name
+}
+
+proc cs_preformat {out text} {
+    puts $out "using System;"
+    puts $out "using System.IO;"
+    puts $out "class TestApp"
+    puts $out "\{"
+    puts $out "    public void Main()"
+    puts $out "    \{"
+    puts $out "#line 1"
+    puts $out $text
+    puts $out "    \}"
+    puts $out "\}"
+}
+
+proc cpp_preformat {out text} {
+	puts $out "#include <exception>"
+	puts $out "#include <iostream>"
+	if {[string first vector $text] >= 0} { puts $out "#include <vector>" }
+	if {[regexp "\mmap\M" $text]} { puts $out "#include <map>" }
+	if {[regexp "\mw?string\M" $text]} { puts $out "#include <string>" }
+	if {[string first printf "$text"] >= 0} { puts $out "#include <cstdio>" }
+    	set program_text ""
+	set line_count 0
+	set first_line 1
+	foreach line [split $text "\n"] {
+	    incr line_count
+	    if {[regexp "^#" $line]} {
+		puts $out $line
+	    } else {
+		if {![string length $program_text]} {
+		    set first_line $line_count
+		}
+		append program_text $line "\n"
+	    }
+	}
+	puts $out "int main (int argc, char* argv\[\])"
+	puts $out "try \{"
+	puts $out "using namespace std;"
+	puts $out "#line $first_line"
+    	puts $out $program_text
+	puts $out ";return 0;"
+	puts $out "\} catch (std::exception& X) \{"
+	puts $out "  std::cerr << \"Exception: \" << X.what() << std::endl;"
+	puts $out "  return 1; \}"
 }
