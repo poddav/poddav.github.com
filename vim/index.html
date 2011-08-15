@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<title>Vim snippets</title>
+<style type="text/css">
+body {
+    font: 12px Verdana,Arial,sans-serif;
+}
+.vimStatement, .vim-code .Statement { color: Brown; font-weight: bold; }
+.vimConstant, .vimString, .vim-code .String, .vim-code .Number { color: Magenta; }
+.vimFunction, .vim-code .Function, .vim-code .Identifier { color: DarkCyan; }
+.vimOper, .vim-code .Operator { color: Brown; }
+.vimComment, .vim-code .Comment { color: Gray; }
+.vimOption, .vimSpecial, .vim-code .Special { color: Purple; }
+.vimType, .vim-code .Type { color: SeaGreen; }
+.hotkey {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #b3bBe1;
+    padding: 1px;
+    background: #e8e8f8;
+}
+code {
+    white-space: pre-wrap;
+    display: block;
+    clear: both;
+    margin-left: 1em;
+}
+p.vim-code, div.vim-code {
+    font-family: monospace;
+    font-weight: bold;
+    background: #e0e0f0;
+    border-color: #C3CBD1;
+    border-style: solid;
+    border-width: 2px 1px 0px 2px;
+    margin: 1em 0 0 1em;
+    padding: 2px 2px 2px 6px;
+}
+code.vim-code {
+    background: none repeat scroll 0 0 #FAFAFA;
+    overflow: auto;
+    padding: 2px 6px;
+    border-color: #C3CBD1;
+    border-style: solid;
+    border-width: 1px 1px 1px 2px;
+}
+
+</style>
+</head>
+<body>
+<h2>Vim Snippets - Contents</h2>
+<ul>
+<li><a href="#set-color-scheme">Set color scheme according to the time of day</a></li>
+<li><a href="#adv-status-line">Advanced status line</a></li>
+<li><a href="#create-backup">Create backup of the current file</a></li>
+<li><a href="#web-browser">Web browser interaction</a></li>
+<li><a href="#highlight-info">Display highlight info on the entity under cursor</a></li>
+<li><a href="#cursor-movement">Cursor movement keys</a></li>
+<li><a href="#home-key-movement">Move cursor to first non-blank character</a></li>
+<li><a href="#shift-visual-mode">Selection with Shift-movement keys</a></li>
+<li><a href="#hi-word">Highlight word under cursor</a></li>
+</ul>
+<hr/>
+<a name="set-color-scheme"/><p>Set color scheme according to the time of day.
+<p class="vim-code">~/.gvimrc</p>
+<code class="vim-code"><span class="vimStatement">let</span> s:hour <span class="vimOper">=</span> <span class="vimFunction">strftime</span>(<span class="vimString">'%H'</span>)
+<span class="vimStatement">if</span> s:hour <span class="vimOper">&gt;</span> <span class="vimConstant">7</span> <span class="vimOper">&amp;&amp;</span> s:hour <span class="vimOper">&lt;</span> <span class="vimConstant">18</span>
+    <span class="vimStatement">colorscheme</span> metallic
+<span class="vimStatement">else</span>
+    <span class="vimStatement">colorscheme</span> darkblue
+<span class="vimStatement">endif</span>
+</code>
+<a name="adv-status-line"/><p>Advanced status line.<br><img src="vim-status-line.en.png" width="480" height="106">
+<div class="vim-code">~/.vimrc</div>
+<code class="vim-code"><span class="vimStatement">set</span> <span class="vimOption">statusline</span>=%f\ %m%r%y%=&lt;%{&amp;fileencoding}&gt;\ %8{CurCharStatus()}\ %k\ %12(%l<span class="vimStatement">,</span>%c%V%)%6P
+
+<span class="vimStatement">fun</span> CurCharStatus<span class="vimSpecial">()</span>
+    <span class="vimStatement">let</span> char <span class="vimOper">=</span> <span class="vimFunction">matchstr</span><span class="vimSpecial">(</span><span class="vimFunction">getline</span><span class="vimSpecial">(</span><span class="vimString">'.'</span><span class="vimSpecial">)</span>,<span class="vimString">'.'</span>,<span class="vimFunction">col</span><span class="vimSpecial">(</span><span class="vimString">'.'</span><span class="vimSpecial">)</span><span class="vimOper">-</span>1<span class="vimSpecial">)</span>
+    <span class="vimStatement">let</span> char_nr <span class="vimOper">=</span> <span class="vimFunction">char2nr</span><span class="vimSpecial">(</span>char<span class="vimSpecial">)</span>
+    <span class="vimStatement">if</span> char_nr <span class="vimOper">==</span> <span class="vimConstant">0</span>
+        <span class="vimStatement">return</span> <span class="vimString">'&lt;NULL&gt;'</span>
+    <span class="vimStatement">endif</span>
+    <span class="vimStatement">if</span> char_nr <span class="vimOper">&lt;</span> <span class="vimConstant">32</span>
+        <span class="vimStatement">let</span> char <span class="vimOper">=</span> <span class="vimString">' '</span>
+    <span class="vimStatement">endif</span>
+    <span class="vimStatement">return</span> <span class="vimFunction">printf</span><span class="vimSpecial">(</span><span class="vimString">&quot;&lt;%s&gt; 0x%02x&quot;</span>, char, char_nr<span class="vimSpecial">)</span>
+<span class="vimStatement">endfun</span>
+</code>
+<a name="create-backup"/><p>Create backup of the current file in form 'FILENAME;NUM'.
+<p class="vim-code">~/.vimrc</p>
+<code class="vim-code"><span class="vimStatement">command</span>! Backup <span class="vimStatement">call</span> BackupFile()
+
+<span class="vimStatement">fun</span>! BackupFile() <span class="vimComment">"{{{</span>
+    <span class="vimStatement">let</span> filename = <span class="vimFunction">expand</span>(<span class="vimString">'%'</span>)
+    <span class="vimStatement">let</span> backup_list = <span class="vimFunction">split</span>(<span class="vimFunction">glob</span>(filename<span class="vimOper">.</span><span class="vimString">';*'</span>), <span class="vimString">'\n'</span>)
+    <span class="vimStatement">let</span> backup_num = <span class="vimConstant">0</span>
+    <span class="vimStatement">for</span> file <span class="vimStatement">in</span> backup_list
+	<span class="vimStatement">let</span> m = <span class="vimFunction">matchlist</span>(file, <span class="vimString">';\(\d\+\)$'</span>)
+	<span class="vimStatement">if</span> !<span class="vimFunction">empty</span>(m)
+	    <span class="vimStatement">let</span> num = <span class="vimFunction">str2nr</span>(m[<span class="vimConstant">1</span>])
+	    <span class="vimStatement">if</span> num <span class="vimOper">&gt;</span> backup_num
+		<span class="vimStatement">let</span> backup_num <span class="vimOper">=</span> num
+	    <span class="vimStatement">endif</span>
+	<span class="vimStatement">endif</span>
+    <span class="vimStatement">endfor</span>
+    <span class="vimStatement">let</span> backup_num <span class="vimOper">=</span> backup_num <span class="vimOper">+</span> <span class="vimConstant">1</span>
+    <span class="vimStatement">let</span> backup_name <span class="vimOper">=</span> filename<span class="vimOper">.</span><span class="vimString">';'</span><span class="vimOper">.</span>backup_num
+    <span class="vimStatement">call</span> <span class="vimFunction">rename</span>(filename, backup_name)
+    <span class="vimStatement">silent write</span>
+    <span class="vimStatement">let</span> v:statusmsg <span class="vimOper">=</span> <span class="vimString">'Created backup "'</span><span class="vimOper">.</span><span class="vimFunction">expand</span>(backup_name,<span class="vimString">':t'</span>)<span class="vimOper">.</span><span class="vimString">'", '</span><span class="vimOper">.</span>v:statusmsg
+    <span class="vimStatement">echomsg</span> v:statusmsg
+<span class="vimStatement">endfun</span> <span class="vimComment">"}}}</span>
+</code>
+<a name="web-browser"/><p>Web browser interaction.
+<p class="vim-code">~/.vimrc</p>
+<code class="vim-code"><span class="vimComment">" Lookup selected text in google</span>
+<span class="vimStatement">vnoremenu</span> 1.5 <span class="vimSpecial">PopUp.Lookup\ &amp;Google</span> :<span class="vimStatement">call</span> LookupInternetVMode()<CR>
+
+<span class="vimStatement">if</span> <span class="vimFunction">has</span>(<span class="vimString">'win32'</span>)
+    <span class="vimStatement">let</span> g:start_browser<span class="vimOper">=</span><span class="vimFunction">'silent !start '</span><span class="vimOper">.</span><span class="vimSpecial">$PROGRAMFILES</span><span class="vimOper">.</span><span class="vimFunction">'/Mozilla Firefox/firefox.exe'</span>
+<span class="vimStatement">endif</span>
+
+<span class="Statement">fun</span>! EscapeURI<span class="Special">(</span>uri<span class="Special">)</span>
+    <span class="Statement">let</span> uri <span class="Operator">=</span> <span class="Function">substitute</span><span class="Special">(</span><span class="Identifier">a:uri</span>, <span class="String">':'</span>, <span class="String">'\%3A'</span>, <span class="String">'g'</span><span class="Special">)</span>
+    <span class="Statement">let</span> uri <span class="Operator">=</span> <span class="Function">substitute</span><span class="Special">(</span>  uri, <span class="String">' '</span>, <span class="String">'+'</span>, <span class="String">'g'</span><span class="Special">)</span>
+    <span class="Statement">return</span> uri
+<span class="Statement">endfun</span>
+
+<span class="Statement">fun</span>! OpenURL<span class="Special">(</span>url<span class="Special">)</span>
+    <span class="vimStatement">if</span> <span class="vimFunction">has</span><span class="Special">(</span><span class="vimString">'win32'</span><span class="Special">)</span>
+	<span class="vimStatement">exe</span> g:start_browser <span class="vimFunction">escape</span><span class="Special">(</span><span class="Identifier">a:url</span>, <span class="vimString">'%'</span><span class="Special">)</span>
+    <span class="vimStatement">else</span>
+	<span class="vimStatement">exe</span> <span class="vimString">'silent !xdg-open'</span> <span class="vimFunction">escape</span>(<span class="Identifier">a:url</span>, <span class="vimString">'%'</span>) <span class="vimString">'&amp;'</span>
+    <span class="vimStatement">endif</span>
+    <span class="Statement">return</span> <span class="Number">1</span>
+<span class="Statement">endfun</span>
+
+<span class="Statement">fun</span>! LookupInternet<span class="Special">(</span>word, <span class="Operator">...</span><span class="Special">)</span>
+    <span class="Statement">let</span> postfix <span class="Operator">=</span> <span class="Identifier">a:0</span>? <span class="String">'&amp;btnI'</span>: <span class="String">''</span>
+    <span class="Statement">let</span> url <span class="Operator">=</span> <span class="String">'http://google.com/search?q='</span><span class="Operator">.</span><span class="vimFunction">EscapeURI</span><span class="Special">(</span><span class="Identifier">a:word</span><span class="Special">)</span><span class="Operator">.</span>postfix
+    <span class="Statement">return</span> <span class="vimFunction">OpenURL</span><span class="Special">(</span>url<span class="Special">)</span>
+<span class="Statement">endfun</span>
+
+<span class="Statement">fun</span>! LookupInternetVMode<span class="Special">()</span> range
+    <span class="Statement">if</span> <span class="Identifier">a:firstline</span> <span class="Operator">!=</span> <span class="Identifier">a:lastline</span>
+        <span class="Statement">return</span>
+    <span class="Statement">endif</span>
+    <span class="Statement">try</span>
+        <span class="Statement">let</span> save_a <span class="Operator">=</span> <span class="Special">@a</span>
+        <span class="Statement">silent normal!</span> gv&quot;ay
+        <span class="Statement">let</span> text <span class="Operator">=</span> <span class="Special">@a</span>
+        <span class="Statement">return</span> <span class="vimFunction">LookupInternet</span><span class="Special">(</span>text<span class="Special">)</span>
+    <span class="Statement">finally</span>
+        <span class="Statement">let</span> <span class="Special">@a</span> <span class="Operator">=</span> save_a
+    <span class="Statement">endtry</span>
+<span class="Statement">endfun</span>
+</code>
+<a name="highlight-info"/><p><span class="hotkey">Ctrl-X W</span> displays highlight info on item under cursor 
+<p class="vim-code">~/.vimrc</p>
+<code class="vim-code"><span class="Statement">nmap</span> <span class="Special">&lt;</span><span class="Special">C-X</span><span class="Special">&gt;</span>w :call SyntaxInfo()<span class="Special">&lt;</span><span class="Special">CR</span><span class="Special">&gt;</span>
+
+<span class="Statement">fun</span>! SyntaxInfo<span class="Special">()</span>
+    <span class="Statement">let</span> synid<span class="Operator">=</span><span class="Function">synID</span><span class="Special">(</span><span class="Function">line</span><span class="Special">(</span><span class="String">'.'</span><span class="Special">)</span>, <span class="Function">col</span><span class="Special">(</span><span class="String">'.'</span><span class="Special">)</span>, <span class="Number">0</span><span class="Special">)</span>
+    <span class="Statement">let</span> attr<span class="Operator">=</span><span class="Function">synIDattr</span><span class="Special">(</span>synid, <span class="String">'name'</span><span class="Special">)</span>
+    <span class="Statement">let</span> real<span class="Operator">=</span><span class="Function">synIDattr</span><span class="Special">(</span><span class="Function">synIDtrans</span><span class="Special">(</span>synid<span class="Special">)</span>, <span class="String">'name'</span><span class="Special">)</span>
+    <span class="Statement">echon</span> <span class="String">&quot;\r&quot;</span><span class="Operator">.</span>attr<span class="Operator">.</span><span class="String">' -&gt; '</span>
+    <span class="Statement">exe</span> <span class="String">'echohl'</span> real
+    <span class="Statement">echon</span> real
+    <span class="Statement">echohl</span> <span class="Type">Normal</span>
+<span class="Statement">endfun</span>
+</code>
+<a name="cursor-movement"/><p>Cursor movement keys
+<p class="vim-code">~/.vimrc</p>
+<code class="vim-code"><span class="Comment">&quot; per-screen-line movement</span>
+<span class="Statement">map</span> <span class="Special">&lt;</span><span class="Special">Up</span><span class="Special">&gt;</span>   gk
+<span class="Statement">map</span> <span class="Special">&lt;</span><span class="Special">Down</span><span class="Special">&gt;</span> gj
+<span class="Comment">&quot; in motion-driven commands (y,d) cursor keys should work over text lines,</span>
+<span class="Comment">&quot; not screen.</span>
+<span class="Statement">ounmap</span> <span class="Special">&lt;</span><span class="Special">Up</span><span class="Special">&gt;</span>
+<span class="Statement">ounmap</span> <span class="Special">&lt;</span><span class="Special">Down</span><span class="Special">&gt;</span>
+
+<span class="Comment">&quot; scroll window</span>
+<span class="Statement">map</span> <span class="Special">&lt;</span><span class="Special">C-Up</span><span class="Special">&gt;</span> <span class="Special">&lt;</span><span class="Special">C-Y</span><span class="Special">&gt;</span>
+<span class="Statement">map</span> <span class="Special">&lt;</span><span class="Special">C-Down</span><span class="Special">&gt;</span> <span class="Special">&lt;</span><span class="Special">C-E</span><span class="Special">&gt;</span>
+
+<span class="Comment">&quot; put commands does not change cursor position</span>
+<span class="Statement">nnoremap</span> p p`[h
+<span class="Statement">nnoremap</span> P P`[
+</code>
+<a name="home-key-movement"/><p><span class="hotkey">Home</span> moves cursor either to the first non-blank character or the first column.</p>
+<p class="vim-code">~/.vimrc</p>
+<code class="vim-code"><span class="Statement">fun</span>! <span class="Special">s:</span>MoveToFirstChar<span class="Special">()</span>
+    <span class="Statement">let</span> pos <span class="Operator">=</span> <span class="Function">col</span><span class="Special">(</span><span class="String">'.'</span><span class="Special">)</span>
+    <span class="Statement">normal</span> ^
+    <span class="Statement">if</span> pos <span class="Operator">==</span> <span class="Function">col</span><span class="Special">(</span><span class="String">'.'</span><span class="Special">)</span>
+        <span class="Statement">normal</span> 0
+    <span class="Statement">endif</span>
+<span class="Statement">endfun</span>
+
+<span class="Statement">noremap</span>  <span class="Special">&lt;silent&gt; &lt;HOME&gt;</span> :call <span class="Special">&lt;SID&gt;</span>MoveToFirstChar()<span class="Special">&lt;CR&gt;</span>
+<span class="Statement">inoremap</span> <span class="Special">&lt;silent&gt; &lt;HOME&gt; &lt;C-\&gt;&lt;C-O&gt;</span>:call <span class="Special">&lt;SID&gt;</span>MoveToFirstChar()<span class="Special">&lt;CR&gt;</span>
+</code>
+<a name="shift-visual-mode"/><p>Visual mode with Shift-movement keys
+<p class="vim-code">~/.vimrc</p><code class="vim-code"><span class="Statement">nmap</span> <span class="Special">&lt;S-Left&gt;</span>   vh
+<span class="Statement">nmap</span> <span class="Special">&lt;S-Right&gt;</span>  vl
+<span class="Statement">nmap</span> <span class="Special">&lt;S-Up&gt;</span>     Vk
+<span class="Statement">nmap</span> <span class="Special">&lt;S-Down&gt;</span>   Vj
+<span class="Statement">nmap</span> <span class="Special">&lt;S-PageUp&gt;</span> V<span class="Special">&lt;PageUp&gt;</span>
+<span class="Statement">nmap</span> <span class="Special">&lt;S-PageDown&gt;</span> V<span class="Special">&lt;PageDown&gt;</span>
+<span class="Statement">nmap</span> <span class="Special">&lt;S-End&gt;</span>    v$
+<span class="Statement">nmap</span> <span class="Special">&lt;S-Home&gt;</span>   v^
+<span class="Statement">imap</span> <span class="Special">&lt;S-Left&gt;   &lt;C-O&gt;</span>vh
+<span class="Statement">imap</span> <span class="Special">&lt;S-Right&gt;  &lt;C-O&gt;</span>vl
+<span class="Statement">imap</span> <span class="Special">&lt;S-Up&gt;     &lt;C-O&gt;</span>Vk
+<span class="Statement">imap</span> <span class="Special">&lt;S-Down&gt;   &lt;C-O&gt;</span>Vj
+<span class="Statement">imap</span> <span class="Special">&lt;S-PageUp&gt; &lt;C-O&gt;</span>V<span class="Special">&lt;PageUp&gt;</span>
+<span class="Statement">imap</span> <span class="Special">&lt;S-PageDown&gt; &lt;C-O&gt;</span>V<span class="Special">&lt;PageDown&gt;</span>
+<span class="Statement">nmap</span> <span class="Special">&lt;S-End&gt;    &lt;C-O&gt;</span>v$
+<span class="Statement">nmap</span> <span class="Special">&lt;S-Home&gt;   &lt;C-O&gt;</span>v^
+<span class="Statement">vmap</span> <span class="Special">&lt;S-Left&gt;</span>   h
+<span class="Statement">vmap</span> <span class="Special">&lt;S-Right&gt;</span>  l
+<span class="Statement">vmap</span> <span class="Special">&lt;S-Up&gt;</span>     k
+<span class="Statement">vmap</span> <span class="Special">&lt;S-Down&gt;</span>   j
+<span class="Statement">vmap</span> <span class="Special">&lt;S-PageUp&gt; &lt;PageUp&gt;</span>
+<span class="Statement">vmap</span> <span class="Special">&lt;S-PageDown&gt; &lt;PageDown&gt;</span>
+
+<span class="Comment">&quot; selection insert</span>
+<span class="Statement">inoremap</span> <span class="Special">&lt;</span><span class="Special">S-Insert</span><span class="Special">&gt;</span> <span class="Special">&lt;</span><span class="Special">MiddleMouse</span><span class="Special">&gt;</span>
+</code>
+<a name="hi-word"/><p>Highlight word under cursor</p><p class="vim-code">~/.vim/plugin/hi-words.vim</p>
+<code class="vim-code"><span class="Statement">fun</span>! <span class="Special">s:</span>Setup_Highlight<span class="Special">()</span>
+    <span class="Statement">if</span> &amp;background <span class="Operator">==</span> <span class="String">'dark'</span>
+        <span class="Statement">hi</span> PreviewKeyword <span class="Type">guibg</span>=<span class="Number">#303070</span>
+    <span class="Statement">else</span>
+        <span class="Statement">hi</span> PreviewKeyword <span class="Type">guibg</span>=<span class="Number">#c4c0b8</span>
+    <span class="Statement">endif</span>
+<span class="Statement">endfun</span>
+
+<span class="Statement">fun</span>! <span class="Special">s:</span>Highlight_Keyword<span class="Special">(</span>keyword<span class="Special">)</span>
+<span class="Comment">    &quot; do not highlight regular keywords</span>
+    <span class="Statement">let</span> synid <span class="Operator">=</span> <span class="Function">synIDtrans</span><span class="Special">(</span><span class="Function">synID</span><span class="Special">(</span><span class="Function">line</span><span class="Special">(</span><span class="String">'.'</span><span class="Special">)</span>, <span class="Function">col</span><span class="Special">(</span><span class="String">'.'</span><span class="Special">)</span>, <span class="Number">0</span><span class="Special">))</span>
+    <span class="Statement">if</span> synid <span class="Operator">==</span> <span class="Function">hlID</span><span class="Special">(</span><span class="String">'Statement'</span><span class="Special">)</span> <span class="Operator">||</span> synid <span class="Operator">==</span> <span class="Function">hlID</span><span class="Special">(</span><span class="String">'Type'</span><span class="Special">)</span> <span class="Operator">||</span> synid <span class="Operator">==</span> <span class="Function">hlID</span><span class="Special">(</span><span class="String">'Identifier'</span><span class="Special">)</span>
+        <span class="Statement">match</span> none
+        <span class="Statement">return</span>
+    <span class="Statement">endif</span>
+
+<span class="Comment">    &quot; character under cursor</span>
+    <span class="Statement">let</span> c <span class="Operator">=</span> <span class="Function">getline</span><span class="Special">(</span><span class="String">'.'</span><span class="Special">)</span>[<span class="Function">col</span><span class="Special">(</span><span class="String">'.'</span><span class="Special">)</span><span class="Operator">-</span>1]
+    <span class="Statement">if</span> <span class="Statement">c</span> <span class="Operator">=~</span> <span class="String">'\w'</span>
+        <span class="Statement">exe</span> <span class="String">'match PreviewKeyword /\&lt;'</span><span class="Operator">.</span>escape<span class="Special">(</span><span class="Identifier">a:keyword</span>,<span class="String">'.*[]/\'</span><span class="Special">)</span><span class="Operator">.</span><span class="String">'\&gt;/'</span>
+    <span class="Statement">else</span>
+        <span class="Statement">match</span> none
+    <span class="Statement">endif</span>
+<span class="Statement">endfun</span>
+
+<span class="Statement">call</span> <span class="Normal">s:Setup_Highlight</span><span class="Special">()</span>
+
+<span class="Statement">augroup</span> HighlightKeyword
+    <span class="Statement">au</span>!
+    <span class="Statement">au</span> <span class="Type">BufAdd</span>                   * <span class="Function">call</span> s:Setup_Highlight<span class="Special">()</span>
+    <span class="Statement">au</span> <span class="Type">WinLeave</span>                 * <span class="Function">match</span> none
+    <span class="Statement">au</span> <span class="Type">WinEnter</span>,<span class="Type">CursorMoved</span>,<span class="Type">CursorMovedI</span> * <span class="Function">call</span> s:Highlight_Keyword<span class="Special">(</span><span class="Function">expand</span><span class="Special">(</span><span class="String">'&lt;cword&gt;'</span><span class="Special">))</span>
+<span class="Statement">augroup</span> END
+</code>
+</body>
+</html>
