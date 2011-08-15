@@ -27,12 +27,13 @@ exec wish "$0" ${1+"$@"}
 
 package require Tk
 
-if {[tk windowingsystem] == "win32"} {
+if {$tcl_platform(platform) eq "windows"} {
     proc cc_cmd {src exe} { return "g++ -x c++ -std=c++0x -Wl,--enable-auto-import -o $exe $src" }
 #    proc cc_cmd {src exe} { return "cl $src /nologo /TP /EHsc /GR /Fo$src.obj /Fe$exe" }
 } else {
     proc cc_cmd {src exe} { return "g++ -x c++ -std=c++0x -o $exe $src" }
 }
+proc csc_cmd {src exe} { return [FindCSC $src $exe] }
 
 if {[catch {package require fileutil}]} {
     set message "C++ console requires tcllib to run."
@@ -76,7 +77,7 @@ pack .output.text   -expand yes -fill x
 
 ${widget_lib}frame .bottom
 ${widget_lib}button .bottom.compile -text "Compile" -command compile_button
-${widget_lib}button .bottom.run -text "Run" -command execute
+${widget_lib}button .bottom.run -text "Run" -command execute_button
 ${widget_lib}label .bottom.text -text "Status OK" -relief sunken -font "TkDefaultFont 10"
 pack .bottom.run -side right
 pack .bottom.compile -side right
@@ -90,7 +91,11 @@ pack .console -fill both -expand yes
 .output.text tag configure service -foreground #808080
 .output.text tag configure output  -foreground black
 .output.text tag configure failure -foreground red
-.output.text insert end "Type C++ program text in the above window\nPress CTRL-Enter to compile & run\nPress ESC to exit\n" service
+.output.text insert end "Type C++ program text in the above window\nPress CTRL-Enter to compile & run as C++ program\n" service
+if {$tcl_platform(platform) eq "windows"} {
+    .output.text insert end "Press Shift-Enter to run as C# program\n" service
+}
+.output.text insert end "Press ESC to exit\n" service
 .output.text configure -state disabled
 
 if {$have_ctext} {
@@ -107,7 +112,11 @@ if {$have_ctext} {
 
 bind . <Escape> { exit 0 }
 bind .console.text <Control-Return> { # execute
-    execute
+    execute_button
+    break
+}
+bind .console.text <Shift-Return> {
+    execute cs_preformat csc_cmd
     break
 }
 bind .console.text <Control-a> { # select all
@@ -121,8 +130,19 @@ if {$have_ctext} {
     focus -force .console.text
 }
 
-proc execute {} {
-    set exe_name [compile]
+proc compile_button {} {
+    set exe_name [compile cpp_preformat cc_cmd]
+    if {[string length $exe_name]} {
+	file delete $exe_name
+    }
+}
+
+proc execute_button {} {
+    execute cpp_preformat cc_cmd
+}
+
+proc execute {preformat compiler} {
+    set exe_name [compile $preformat $compiler]
     if {[string length $exe_name]} {
 	.bottom.text configure -text "Executing..."
 	update
@@ -152,16 +172,16 @@ proc execute {} {
     }
 }
 
-proc compile_button {} {
-    set exe_name [compile]
-    if {[string length $exe_name]} {
-	file delete $exe_name
-    }
-}
-
-proc compile {} {
+proc compile {preformat compiler} {
     set text [.console.text get 1.0 end]
     set src_name [fileutil::tempfile]
+    set exe_name "${src_name}.exe"
+    set command [string map {\\ \\\\} [$compiler $src_name $exe_name]]
+
+    if {![string length $command]} {
+	return ""
+    }
+
     set src [open $src_name w]
 
     if {$::have_ttk} { ttk::setCursor . busy }
@@ -169,19 +189,18 @@ proc compile {} {
     update
 
     if {![regexp {\mmain\M} $text]} {
-	cpp_preformat $src $text
+	$preformat $src $text
     } else {
     	puts $src $text
     }
     close $src
-    set exe_name "${src_name}.exe"
-    set base_name [file tail $src_name]
-    set command [cc_cmd $src_name $exe_name]
 
+    set base_name [file tail $src_name]
     .output.text configure -state normal
     .output.text delete 1.0 end
+
     set msg "child process exited abnormally"
-    set status [catch { eval exec -keepnewline -- $command 2>@1 } output];
+    set status [catch { eval exec -keepnewline -- $command 2>@1 } output]
     set output [string map [list $src_name <input> $base_name <input> $msg ""] $output]
     if {!$status} {
     	.bottom.text configure -text "Program compiled OK"
@@ -205,7 +224,7 @@ proc cs_preformat {out text} {
     puts $out "using System.IO;"
     puts $out "class TestApp"
     puts $out "\{"
-    puts $out "    public void Main()"
+    puts $out "    public static void Main()"
     puts $out "    \{"
     puts $out "#line 1"
     puts $out $text
@@ -243,4 +262,45 @@ proc cpp_preformat {out text} {
 	puts $out "\} catch (std::exception& X) \{"
 	puts $out "  std::cerr << \"Exception: \" << X.what() << std::endl;"
 	puts $out "  return 1; \}"
+}
+
+if {$tcl_platform(platform) eq "windows"} {
+    package require registry
+
+    proc get_vc7_key {key} {
+	set path_list {
+	    HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7
+	    HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7
+	    HKEY_CURRENT_USER\\SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\VC7
+	    HKEY_CURRENT_USER\\SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\VC7
+	}
+	foreach path $path_list {
+	    if {![catch { set value [registry get $path $key] }]} {
+		return $value
+	    }
+	}
+	return ""
+    }
+
+    proc FindCSC {src exe} {
+	if {[string first x86 [platform::identify]] != -1} {
+	    set cpu 32
+	} else {
+	    set cpu 64
+	}
+	set fw_base [get_vc7_key FrameworkDir$cpu]
+	set fw_ver  [get_vc7_key FrameworkVer$cpu]
+	if {[string length $fw_base] == 0 || [string length $fw_ver] == 0} {
+	    error "C# compiler not found"
+	}
+	set CSC_COMMAND [string map {\\ \\\\} "${fw_base}${fw_ver}\\csc"]
+	eval "proc csc_cmd {src exe} { return \"" $CSC_COMMAND " /nologo /out:\[string map {/ \\\\} \"\$exe \$src\"]\" }"
+	return [csc_cmd $src $exe]
+    }
+} else {
+    proc FindCSC {src exe} {
+	option add *Dialog.msg.font {Helvetica 12}
+	tk_messageBox -message "C# compiler not available on this platform" -parent . -title Error -type ok -icon error
+       	return "" 
+    }
 }
