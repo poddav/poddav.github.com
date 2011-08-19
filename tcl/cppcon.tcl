@@ -102,7 +102,7 @@ if {$have_ctext} {
     ::ctext::addHighlightClass .console.text cType blue \
 	[list int char wchar_t bool long unsigned float double]
     ::ctext::addHighlightClass .console.text cStatement blue \
-	[list for while return break continue catch throw typedef using namespace class struct enum]
+	[list for while return break continue catch throw typedef using namespace class struct enum public private protected]
     ::ctext::addHighlightClass .console.text cPreproc red [list #define #include]
     ::ctext::addHighlightClassForSpecialChars .console.text cPunct #000090 "()<>;./+-*&=?:"
     ::ctext::addHighlightClassForSpecialChars .console.text cNumber #00a020 "0123456789"
@@ -188,7 +188,7 @@ proc compile {preformat compiler} {
     .bottom.text configure -text "Compiling..."
     update
 
-    if {![regexp {\mmain\M} $text]} {
+    if {![regexp {\m[mM]ain\M} $text]} {
 	$preformat $src $text
     } else {
     	puts $src $text
@@ -270,8 +270,8 @@ if {$tcl_platform(platform) eq "windows"} {
     proc get_vc7_key {key} {
 	set path_list {
 	    HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7
-	    HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7
-	    HKEY_CURRENT_USER\\SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\VC7
+	    HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7
+	    HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\VC7
 	    HKEY_CURRENT_USER\\SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\VC7
 	}
 	foreach path $path_list {
