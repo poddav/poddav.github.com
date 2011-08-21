@@ -1,0 +1,49 @@
+body {
+    font: 12px Verdana,Arial,sans-serif;
+}
+.vimStatement, .vim-code .Statement { color: Brown; font-weight: bold; }
+.vimConstant, .vimString, .vim-code .String, .vim-code .Number { color: Magenta; }
+.vimFunction, .vim-code .Function, .vim-code .Identifier { color: DarkCyan; }
+.vimOper, .vim-code .Operator { color: Brown; }
+.vimComment, .vim-code .Comment { color: Gray; }
+.vimOption, .vimSpecial, .vim-code .Special { color: Purple; }
+.vimType, .vim-code .Type { color: SeaGreen; }
+.hotkey {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #b3bBe1;
+    padding: 1px;
+    background: #e8e8f8;
+}
+code {
+    white-space: pre-wrap;
+    display: block;
+    clear: both;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+p.vim-code, div.vim-code {
+    display: inline;
+    font-family: monospace;
+    font-weight: bold;
+    background: #e0e0f0;
+    border-color: #C3CBD1;
+    border-style: solid;
+    border-width: 2px 2px 0px 2px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    margin: 1em 0 0 1em;
+    padding: 2px 2px 0px 6px;
+}
+code.vim-code {
+    background: none repeat scroll 0 0 #FAFAFA;
+    overflow: auto;
+    padding: 2px 6px;
+    border-color: #C3CBD1;
+    border-style: solid;
+    border-width: 1px 1px 1px 2px;
+    border-top-right-radius: 6px;
+}
+.lang-select {
+    float: right;
+}

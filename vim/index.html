@@ -1,55 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+<link rel="stylesheet" type="text/css" href="vim.css"/>
 <title>Vim snippets</title>
-<style type="text/css">
-body {
-    font: 12px Verdana,Arial,sans-serif;
-}
-.vimStatement, .vim-code .Statement { color: Brown; font-weight: bold; }
-.vimConstant, .vimString, .vim-code .String, .vim-code .Number { color: Magenta; }
-.vimFunction, .vim-code .Function, .vim-code .Identifier { color: DarkCyan; }
-.vimOper, .vim-code .Operator { color: Brown; }
-.vimComment, .vim-code .Comment { color: Gray; }
-.vimOption, .vimSpecial, .vim-code .Special { color: Purple; }
-.vimType, .vim-code .Type { color: SeaGreen; }
-.hotkey {
-    border-style: solid;
-    border-width: 1px;
-    border-color: #b3bBe1;
-    padding: 1px;
-    background: #e8e8f8;
-}
-code {
-    white-space: pre-wrap;
-    display: block;
-    clear: both;
-    margin-left: 1em;
-}
-p.vim-code, div.vim-code {
-    font-family: monospace;
-    font-weight: bold;
-    background: #e0e0f0;
-    border-color: #C3CBD1;
-    border-style: solid;
-    border-width: 2px 1px 0px 2px;
-    margin: 1em 0 0 1em;
-    padding: 2px 2px 2px 6px;
-}
-code.vim-code {
-    background: none repeat scroll 0 0 #FAFAFA;
-    overflow: auto;
-    padding: 2px 6px;
-    border-color: #C3CBD1;
-    border-style: solid;
-    border-width: 1px 1px 1px 2px;
-}
-
-</style>
 </head>
 <body>
-<h2>Vim Snippets - Contents</h2>
+<div class="lang-select">en&nbsp;|&nbsp;<a href="index.ru.html">ru</a></div>
+<h2>Vim Snippets &mdash; Contents</h2>
 <ul>
 <li><a href="#set-color-scheme">Set color scheme according to the time of day</a></li>
 <li><a href="#adv-status-line">Advanced status line</a></li>
@@ -87,7 +45,7 @@ code.vim-code {
     <span class="vimStatement">return</span> <span class="vimFunction">printf</span><span class="vimSpecial">(</span><span class="vimString">&quot;&lt;%s&gt; 0x%02x&quot;</span>, char, char_nr<span class="vimSpecial">)</span>
 <span class="vimStatement">endfun</span>
 </code>
-<a name="create-backup"/><p>Create backup of the current file in form 'FILENAME;NUM'.
+<a name="create-backup"/><p>Create backup of the current file in form 'FILENAME;NUM' (Vax/VMS style).
 <p class="vim-code">~/.vimrc</p>
 <code class="vim-code"><span class="vimStatement">command</span>! Backup <span class="vimStatement">call</span> BackupFile()
 
@@ -114,7 +72,7 @@ code.vim-code {
 </code>
 <a name="web-browser"/><p>Web browser interaction.
 <p class="vim-code">~/.vimrc</p>
-<code class="vim-code"><span class="vimComment">" Lookup selected text in google</span>
+<code class="vim-code"><span class="vimComment">" Lookup selected text in google (context menu modification)</span>
 <span class="vimStatement">vnoremenu</span> 1.5 <span class="vimSpecial">PopUp.Lookup\ &amp;Google</span> :<span class="vimStatement">call</span> LookupInternetVMode()<CR>
 
 <span class="vimStatement">if</span> <span class="vimFunction">has</span>(<span class="vimString">'win32'</span>)
@@ -170,13 +128,13 @@ code.vim-code {
     <span class="Statement">echohl</span> <span class="Type">Normal</span>
 <span class="Statement">endfun</span>
 </code>
-<a name="cursor-movement"/><p>Cursor movement keys
+<a name="cursor-movement"/><p>Cursor movement keys.
 <p class="vim-code">~/.vimrc</p>
 <code class="vim-code"><span class="Comment">&quot; per-screen-line movement</span>
 <span class="Statement">map</span> <span class="Special">&lt;</span><span class="Special">Up</span><span class="Special">&gt;</span>   gk
 <span class="Statement">map</span> <span class="Special">&lt;</span><span class="Special">Down</span><span class="Special">&gt;</span> gj
-<span class="Comment">&quot; in motion-driven commands (y,d) cursor keys should work over text lines,</span>
-<span class="Comment">&quot; not screen.</span>
+<span class="Comment">&quot; in motion-driven commands (y,d) cursor keys should work over text lines,
+&quot; not screen.</span>
 <span class="Statement">ounmap</span> <span class="Special">&lt;</span><span class="Special">Up</span><span class="Special">&gt;</span>
 <span class="Statement">ounmap</span> <span class="Special">&lt;</span><span class="Special">Down</span><span class="Special">&gt;</span>
 
@@ -201,7 +159,7 @@ code.vim-code {
 <span class="Statement">noremap</span>  <span class="Special">&lt;silent&gt; &lt;HOME&gt;</span> :call <span class="Special">&lt;SID&gt;</span>MoveToFirstChar()<span class="Special">&lt;CR&gt;</span>
 <span class="Statement">inoremap</span> <span class="Special">&lt;silent&gt; &lt;HOME&gt; &lt;C-\&gt;&lt;C-O&gt;</span>:call <span class="Special">&lt;SID&gt;</span>MoveToFirstChar()<span class="Special">&lt;CR&gt;</span>
 </code>
-<a name="shift-visual-mode"/><p>Visual mode with Shift-movement keys
+<a name="shift-visual-mode"/><p>Visual mode with Shift-movement keys.
 <p class="vim-code">~/.vimrc</p><code class="vim-code"><span class="Statement">nmap</span> <span class="Special">&lt;S-Left&gt;</span>   vh
 <span class="Statement">nmap</span> <span class="Special">&lt;S-Right&gt;</span>  vl
 <span class="Statement">nmap</span> <span class="Special">&lt;S-Up&gt;</span>     Vk
@@ -216,8 +174,8 @@ code.vim-code {
 <span class="Statement">imap</span> <span class="Special">&lt;S-Down&gt;   &lt;C-O&gt;</span>Vj
 <span class="Statement">imap</span> <span class="Special">&lt;S-PageUp&gt; &lt;C-O&gt;</span>V<span class="Special">&lt;PageUp&gt;</span>
 <span class="Statement">imap</span> <span class="Special">&lt;S-PageDown&gt; &lt;C-O&gt;</span>V<span class="Special">&lt;PageDown&gt;</span>
-<span class="Statement">nmap</span> <span class="Special">&lt;S-End&gt;    &lt;C-O&gt;</span>v$
-<span class="Statement">nmap</span> <span class="Special">&lt;S-Home&gt;   &lt;C-O&gt;</span>v^
+<span class="Statement">imap</span> <span class="Special">&lt;S-End&gt;    &lt;C-O&gt;</span>v$
+<span class="Statement">imap</span> <span class="Special">&lt;S-Home&gt;   &lt;C-O&gt;</span>v^
 <span class="Statement">vmap</span> <span class="Special">&lt;S-Left&gt;</span>   h
 <span class="Statement">vmap</span> <span class="Special">&lt;S-Right&gt;</span>  l
 <span class="Statement">vmap</span> <span class="Special">&lt;S-Up&gt;</span>     k
@@ -228,7 +186,7 @@ code.vim-code {
 <span class="Comment">&quot; selection insert</span>
 <span class="Statement">inoremap</span> <span class="Special">&lt;</span><span class="Special">S-Insert</span><span class="Special">&gt;</span> <span class="Special">&lt;</span><span class="Special">MiddleMouse</span><span class="Special">&gt;</span>
 </code>
-<a name="hi-word"/><p>Highlight word under cursor</p><p class="vim-code">~/.vim/plugin/hi-words.vim</p>
+<a name="hi-word"/><p>Highlight word under cursor.</p><p class="vim-code">~/.vim/plugin/hi-words.vim</p>
 <code class="vim-code"><span class="Statement">fun</span>! <span class="Special">s:</span>Setup_Highlight<span class="Special">()</span>
     <span class="Statement">if</span> &amp;background <span class="Operator">==</span> <span class="String">'dark'</span>
         <span class="Statement">hi</span> PreviewKeyword <span class="Type">guibg</span>=<span class="Number">#303070</span>
@@ -263,5 +221,7 @@ code.vim-code {
     <span class="Statement">au</span> <span class="Type">WinEnter</span>,<span class="Type">CursorMoved</span>,<span class="Type">CursorMovedI</span> * <span class="Function">call</span> s:Highlight_Keyword<span class="Special">(</span><span class="Function">expand</span><span class="Special">(</span><span class="String">'&lt;cword&gt;'</span><span class="Special">))</span>
 <span class="Statement">augroup</span> END
 </code>
+<hr>
+<p>Copyright &copy; 2011 rnd
 </body>
 </html>
