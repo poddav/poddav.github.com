@@ -5,7 +5,7 @@
 <title>Преобразование строки в число (C++)</title>
 <style type="text/css">
 body {
-    font: 12px Verdana,Arial,sans-serif;
+    font: 0.75em Verdana,sans-serif;
     counter-reset: section;
 }
 h2 {
@@ -41,6 +41,7 @@ tr.even { background-color:#fff; }
 }
 .first_column { min-width: 100px; }
 .cpp_header { color: #339900; }
+.cpp_keyword { color: #aa2a2a; }
 .cpp_identifier { color: #007788; }
 .cpp_punct { color: #008000; }
 .cpp_literal { color: #990000; }
@@ -66,7 +67,7 @@ code { white-space: pre-line; }
 <table class="sample-code" id="str2int">
 <tr><td colspan="3"><h3>atoi</h3></td></tr>
 <tr><th> </th><th><code class="cpp_type">char</code></th><th><code class="cpp_type">wchar_t</code></th></tr>
-<tr><td> Заголовок</td><td><code class="cpp_header">&lt;cstdlib&gt;</code></td><td><code class="cpp_header">&lt;cwchar&gt;</code></td></tr>
+<tr><td> Заголовок</td><td><code class="cpp_header">#include &lt;cstdlib&gt;</code></td><td><code class="cpp_header">#include &lt;cwchar&gt;</code></td></tr>
 <tr class="source"><td>Код</td><td><code>    x <span class="cpp_operator">=</span> <span class="cpp_identifier">std</span>::<span class="cpp_identifier">atoi</span> <span class="cpp_punct">(</span>input<span class="cpp_punct">)</span>;</code></td>
 <td><code>    x <span class="cpp_operator">=</span> <span class="cpp_identifier">_wtoi</span> <span class="cpp_punct">(</span>winput<span class="cpp_punct">)</span>;</code></td></tr>
 <tr class="error-check"><td>Проверка</td>
@@ -77,18 +78,12 @@ code { white-space: pre-line; }
 <h3>strtol</h3>
 </td></tr>
 <tr><th> </th><th><code class="cpp_type">char</code></th><th><code class="cpp_type">wchar_t</code></th></tr>
-<tr><td> Заголовок</td><td><code class="cpp_header">&lt;cstdlib&gt;</code>, <code class="cpp_header">&lt;cerrno&gt;</code> (для проверки результата)</td>
-<td><code class="cpp_header">&lt;cwchar&gt;</code>, <code class="cpp_header">&lt;cerrno&gt;</code> (для проверки результата)</td></tr>
+<tr><td> Заголовок</td><td><code class="cpp_header">#include &lt;cstdlib&gt;</code><br><code class="cpp_header">#include &lt;cerrno&gt; <span class="cpp_comment">// для проверки результата</span></code></td>
+<td><code class="cpp_header">#include &lt;cwchar&gt;</code><br><code class="cpp_header">#include &lt;cerrno&gt; // <span class="cpp_comment">для проверки результата</span></code></td></tr>
 <tr class="source"><td>Код</td><td><code>
-    <span class="cpp_type">const</span> <span class="cpp_type">char</span><span class="cpp_operator">*</span> endptr;
-    errno <span class="cpp_operator">=</span> <span class="cpp_literal">0</span>;
-    x <span class="cpp_operator">=</span> <span class="cpp_identifier">std</span>::<span class="cpp_identifier">strtol</span> <span class="cpp_punct">(</span>input<span class="cpp_punct">,</span> <span class="cpp_operator">&amp;</span>endptr<span class="cpp_punct">,</span> <span class="cpp_literal">10</span><span class="cpp_punct">)</span>;
-</code></td>
+    <span class="cpp_type">char</span><span class="cpp_operator">*</span> endptr;<br>    errno <span class="cpp_operator">=</span> <span class="cpp_literal">0</span>;<br>    x <span class="cpp_operator">=</span> <span class="cpp_identifier">std</span>::<span class="cpp_identifier">strtol</span> <span class="cpp_punct">(</span>input<span class="cpp_punct">,</span> <span class="cpp_operator">&amp;</span>endptr<span class="cpp_punct">,</span> <span class="cpp_literal">10</span><span class="cpp_punct">)</span>;</code></td>
 <td><code>
-    <span class="cpp_type">const</span> <span class="cpp_type">wchar_t</span><span class="cpp_operator">*</span> wendptr;
-    errno <span class="cpp_operator">=</span> <span class="cpp_literal">0</span>;
-    x <span class="cpp_operator">=</span> <span class="cpp_identifier">std</span>::<span class="cpp_identifier">wcstol</span> <span class="cpp_punct">(</span>winput<span class="cpp_punct">,</span> <span class="cpp_operator">&amp;</span>wendptr<span class="cpp_punct">,</span> <span class="cpp_literal">10</span><span class="cpp_punct">)</span>;
-</code></td></tr>
+    <span class="cpp_type">wchar_t</span><span class="cpp_operator">*</span> wendptr;<br>    errno <span class="cpp_operator">=</span> <span class="cpp_literal">0</span>;<br>    x <span class="cpp_operator">=</span> <span class="cpp_identifier">std</span>::<span class="cpp_identifier">wcstol</span> <span class="cpp_punct">(</span>winput<span class="cpp_punct">,</span> <span class="cpp_operator">&amp;</span>wendptr<span class="cpp_punct">,</span> <span class="cpp_literal">10</span><span class="cpp_punct">)</span>;</code></td></tr>
 <tr class="error-check"><td>Проверка</td><td><code>error <span class="cpp_operator">=</span> <span class="cpp_punct">(</span>endptr <span class="cpp_operator">==</span> input <span class="cpp_operator">||</span> errno <span class="cpp_operator">==</span> <span class="cpp_identifier">ERANGE</span><span class="cpp_punct">)</span></code></td>
 <td><code>error <span class="cpp_operator">=</span> <span class="cpp_punct">(</span>wendptr <span class="cpp_operator">==</span> winput <span class="cpp_operator">||</span> errno <span class="cpp_operator">==</span> <span class="cpp_identifier">ERANGE</span><span class="cpp_punct">)</span></code></td></tr>
 <tr class="conforming"><td>Conforming</td><td><span class="conform_ok">C89</span>, <span class="conform_ok">C++98</span>, POSIX</td><td><span class="conform_ok">C99</span>, <span class="conform_ok">C++98</span></td></tr>
@@ -96,7 +91,7 @@ code { white-space: pre-line; }
 <h3>sscanf</h3>
 </td></tr>
 <tr><th> </th><th><code class="cpp_type">char</code></th><th><code class="cpp_type">wchar_t</code></th></tr>
-<tr><td> Заголовок</td><td><code class="cpp_header">&lt;cstdio&gt;</code></td><td><code class="cpp_header">&lt;cstdio&gt;</code></td></tr>
+<tr><td> Заголовок</td><td><code class="cpp_header">#include &lt;cstdio&gt;</code></td><td><code class="cpp_header">#include &lt;cstdio&gt;</code></td></tr>
 <tr class="source"><td>Код</td><td><code> <span class="cpp_type">int</span> rc <span class="cpp_operator">=</span> <span class="cpp_identifier">std</span>::<span class="cpp_identifier">sscanf</span> <span class="cpp_punct">(</span>input<span class="cpp_punct">,</span> <span class="cpp_literal">"%d"</span><span class="cpp_punct">,</span> <span class="cpp_operator">&amp;</span>x<span class="cpp_punct">)</span>;
 </code></td>
 <td><code> <span class="cpp_type">int</span> rc <span class="cpp_operator">=</span> <span class="cpp_identifier">std</span>::<span class="cpp_identifier">swscanf</span> <span class="cpp_punct">(</span>winput<span class="cpp_punct">,</span> <span class="cpp_literal">L"%d"</span><span class="cpp_punct">,</span> <span class="cpp_operator">&amp;</span>x<span class="cpp_punct">)</span>;
@@ -108,15 +103,9 @@ code { white-space: pre-line; }
 <h3>istringstream</h3>
 </td></tr>
 <tr><th> </th><th><code class="cpp_type">char</code></th><th><code class="cpp_type">wchar_t</code></th></tr>
-<tr><td> Заголовок</td><td><code class="cpp_header">&lt;sstream&gt;</code></td><td><code class="cpp_header">&lt;sstream&gt;</code></td></tr>
-<tr class="source"><td>Код</td><td><code><span class="cpp_comment">// input неявно преобразуется в std::string</span>
- <span class="cpp_identifier">std</span>::<span class="cpp_identifier">istringstream</span> in <span class="cpp_punct">(</span>input<span class="cpp_punct">)</span>;
-    in <span class="cpp_operator">&gt;&gt;</span> x;
-</code></td>
-<td><code><span class="cpp_comment">// winput неявно преобразуется в std::wstring</span>
- <span class="cpp_identifier">std</span>::<span class="cpp_identifier">wistringstream</span> in <span class="cpp_punct">(</span>winput<span class="cpp_punct">)</span>;
-    in <span class="cpp_operator">&gt;&gt;</span> x;
-</code></td></tr>
+<tr><td> Заголовок</td><td><code class="cpp_header">#include &lt;sstream&gt;</code></td><td><code class="cpp_header">#include &lt;sstream&gt;</code></td></tr>
+<tr class="source"><td>Код</td><td><code><span class="cpp_comment">// input неявно преобразуется в std::string</span><br><span class="cpp_identifier">std</span>::<span class="cpp_identifier">istringstream</span> in <span class="cpp_punct">(</span>input<span class="cpp_punct">)</span>;<br>in <span class="cpp_operator">&gt;&gt;</span> x;</code></td>
+<td><code><span class="cpp_comment">// winput неявно преобразуется в std::wstring</span><br><span class="cpp_identifier">std</span>::<span class="cpp_identifier">wistringstream</span> in <span class="cpp_punct">(</span>winput<span class="cpp_punct">)</span>;<br>in <span class="cpp_operator">&gt;&gt;</span> x;</code></td></tr>
 <tr><td>Проверка</td>
 <td><code> error <span class="cpp_operator">=</span> in<span class="cpp_operator">.</span>fail<span class="cpp_punct">()</span>;</code></td>
 <td><code> error <span class="cpp_operator">=</span> in<span class="cpp_operator">.</span>fail<span class="cpp_punct">()</span>;</code></td>
@@ -126,26 +115,32 @@ code { white-space: pre-line; }
 <h3>stoi</h3>
 </td></tr>
 <tr><th> </th><th><code class="cpp_type">char</code></th><th><code class="cpp_type">wchar_t</code></th></tr>
-<tr><td> Заголовок</td><td><code class="cpp_header">&lt;string&gt;</code></td><td><code class="cpp_header">&lt;string&gt;</code></td></tr>
-<tr class="source"><td>Код</td><td><code><span class="cpp_comment">// input неявно преобразуется в std::string</span>
- x <span class="cpp_operator">=</span> <span class="cpp_identifier">std</span>::<span class="cpp_identifier">stoi</span> <span class="cpp_punct">(</span>input<span class="cpp_punct">)</span>;
-</code></td>
-<td><code><span class="cpp_comment">// winput неявно преобразуется в std::wstring</span>
- x <span class="cpp_operator">=</span> <span class="cpp_identifier">std</span>::<span class="cpp_identifier">stoi</span> <span class="cpp_punct">(</span>winput<span class="cpp_punct">)</span>;
-</code></td></tr>
+<tr><td> Заголовок</td><td><code class="cpp_header">#include &lt;string&gt;</code></td><td><code class="cpp_header">#include &lt;string&gt;</code></td></tr>
+<tr class="source"><td>Код</td><td><code><span class="cpp_comment">// input неявно преобразуется в std::string</span><br>x <span class="cpp_operator">=</span> <span class="cpp_identifier">std</span>::<span class="cpp_identifier">stoi</span> <span class="cpp_punct">(</span>input<span class="cpp_punct">)</span>;</code></td>
+<td><code><span class="cpp_comment">// winput неявно преобразуется в std::wstring</span><br>x <span class="cpp_operator">=</span> <span class="cpp_identifier">std</span>::<span class="cpp_identifier">stoi</span> <span class="cpp_punct">(</span>winput<span class="cpp_punct">)</span>;</code></td></tr>
 <tr><td>Проверка</td><td colspan="2">В случае ошибки выбрасываются исключения <code><span class="cpp_identifier">std</span>::<span class="cpp_identifier">invalid_argument</span></code> или <code><span class="cpp_identifier">std</span>::<span class="cpp_identifier">out_of_range</span></code></td></tr>
-<tr><td>Conforming</td><td><span class="conform_alert">C++0x</span></td><td><span class="conform_alert">C++0x</span></td></tr>
+<tr><td>Conforming</td><td><span class="conform_alert">C++11</span></td><td><span class="conform_alert">C++11</span></td></tr>
 
 <tr><td colspan="3">
 <h3>boost::lexical_cast</h3>
 </td></tr>
 <tr><th> </th><th><code class="cpp_type">char</code></th><th><code class="cpp_type">wchar_t</code></th></tr>
-<tr><td> Заголовок</td><td><code class="cpp_header">&lt;boost/lexical_cast.hpp&gt;</code></td><td><code class="cpp_header">&lt;boost/lexical_cast.hpp&gt;</code></td></tr>
+<tr><td> Заголовок</td><td><code class="cpp_header">#include &lt;boost/lexical_cast.hpp&gt;</code></td><td><code class="cpp_header">#include &lt;boost/lexical_cast.hpp&gt;</code></td></tr>
 <tr class="source"><td>Код</td><td><code> x <span class="cpp_operator">=</span> <span class="cpp_identifier">boost</span>::lexical_cast<span class="cpp_operator">&lt;</span><span class="cpp_type">int</span><span class="cpp_operator">&gt;</span> <span class="cpp_punct">(</span>input<span class="cpp_punct">)</span>;
 </code></td>
 <td> <code> x <span class="cpp_operator">=</span> <span class="cpp_identifier">boost</span>::lexical_cast<span class="cpp_operator">&lt;</span><span class="cpp_type">int</span><span class="cpp_operator">&gt;</span> <span class="cpp_punct">(</span>winput<span class="cpp_punct">)</span>; </code></td></tr>
 <tr><td>Проверка</td><td colspan="2">В случае ошибки выбрасывается исключение <code><span class="cpp_identifier">boost</span>::bad_lexical_cast</code></td></tr>
-<tr><td>Conforming</td><td><span class="conform_alert">boost 1.38.0+</span></td><td><span class="conform_alert">boost 1.38.0+</span></td></tr>
+<tr><td>Conforming</td><td><span class="conform_alert">boost 1.20.0+</span></td><td><span class="conform_alert">boost 1.20.0+</span></td></tr>
+
+<tr><td colspan="3">
+<h3>boost::spirit::qi</h3>
+</td></tr>
+<tr><th> </th><th><code class="cpp_type">char</code></th><th><code class="cpp_type">wchar_t</code></th></tr>
+<tr><td> Заголовок</td><td><code class="cpp_header">#include &lt;boost/spirit/include/qi_parse.hpp&gt;<br>#include &lt;boost/spirit/include/qi_int.hpp&gt;<br>#include &lt;cstring&gt;</code></code></td><td><code class="cpp_header">#include &lt;boost/spirit/include/qi_parse.hpp&gt;<br>#include &lt;boost/spirit/include/qi_int.hpp&gt;<br>#include &lt;cwchar&gt;</code></td></tr>
+<tr class="source"><td>Код</td><td><code><span class="cpp_keyword">using</span> <span class="cpp_keyword">namespace</span> <span class="cpp_identifier">boost</span>::spirit;<br><span class="cpp_type">const</span> <span class="cpp_type">char</span><span class="cpp_operator">*</span> first <span class="cpp_operator">=</span> input;<br><span class="cpp_type">const</span> <span class="cpp_type">char</span><span class="cpp_operator">*</span> last <span class="cpp_operator">=</span> input <span class="cpp_operator">+</span> <span class="cpp_identifier">std</span>::<span class="cpp_identifier">strlen</span> <span class="cpp_punct">(</span>input<span class="cpp_punct">)</span>;<br>error <span class="cpp_operator">=</span> <span class="cpp_operator">!</span>qi::parse <span class="cpp_punct">(</span>first<span class="cpp_punct">,</span> last<span class="cpp_punct">,</span> int_<span class="cpp_punct">,</span> x<span class="cpp_punct">)</span>;</code></td>
+<td><code><span class="cpp_keyword">using</span> <span class="cpp_keyword">namespace</span> <span class="cpp_identifier">boost</span>::spirit;<br><span class="cpp_type">const</span> <span class="cpp_type">wchar_t</span><span class="cpp_operator">*</span> first <span class="cpp_operator">=</span> winput;<br><span class="cpp_type">const</span> <span class="cpp_type">wchar_t</span><span class="cpp_operator">*</span> last <span class="cpp_operator">=</span> winput <span class="cpp_operator">+</span> <span class="cpp_identifier">std</span>::<span class="cpp_identifier">wcslen</span> <span class="cpp_punct">(</span>winput<span class="cpp_punct">)</span>;<br>error <span class="cpp_operator">=</span> <span class="cpp_operator">!</span>qi::parse <span class="cpp_punct">(</span>first<span class="cpp_punct">,</span> last<span class="cpp_punct">,</span> int_<span class="cpp_punct">,</span> x<span class="cpp_punct">)</span>;</code></td></tr>
+<tr><td>Проверка</td><td><code>error <span class="cpp_operator">||</span> first <span class="cpp_operator">!=</span> last</code></td><td><code>error <span class="cpp_operator">||</span> first <span class="cpp_operator">!=</span> last</code></td></tr>
+<tr><td>Conforming</td><td><span class="conform_alert">boost 1.30.0+</span></td><td><span class="conform_alert">boost 1.30.0+</span></td></tr>
 
 </table>
 <script type="text/javascript">
