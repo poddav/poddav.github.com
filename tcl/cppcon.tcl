@@ -27,8 +27,10 @@ exec wish "$0" ${1+"$@"}
 
 package require Tk
 
+set cppcon_version 1.2
+
 if {$tcl_platform(platform) eq "windows"} {
-    proc cc_cmd {src exe} { return "g++ -x c++ -std=c++0x -Wl,--enable-auto-import -o $exe $src" }
+    proc cc_cmd {src exe} { return "g++ -x c++ -std=c++11 -Wl,--enable-auto-import -o $exe $src" }
 #    proc cc_cmd {src exe} { return "cl $src /nologo /TP /EHsc /GR /Fo$src.obj /Fe$exe" }
 } else {
     proc cc_cmd {src exe} { return "g++ -x c++ -std=c++0x -o $exe $src" }
@@ -52,7 +54,7 @@ set text_font   [expr {[font metrics Consolas -fixed] ? "Consolas" : "TkFixedFon
 set text_widget [expr {$have_ctext ? "ctext" : "text"}] 
 set widget_lib  [expr {$have_ttk ? "ttk::" : ""}]
 
-wm title . "C++ console"
+wm title . "C++ console v$cppcon_version"
 wm minsize . 220 220
 
 ${widget_lib}frame .console -borderwidth 1
@@ -222,46 +224,56 @@ proc compile {preformat compiler} {
 proc cs_preformat {out text} {
     puts $out "using System;"
     puts $out "using System.IO;"
+    set program_text ""
+    set line_count 0
+    foreach line [split $text "\n"] {
+	incr line_count
+	if {[regexp "^using" $line]} {
+	    puts $out $line
+	} else {
+	    if {![string length $program_text]} {
+		append program_text "#line $line_count\n"
+	    }
+	    append program_text $line "\n"
+	}
+    }
     puts $out "class TestApp"
     puts $out "\{"
     puts $out "    public static void Main()"
     puts $out "    \{"
-    puts $out "#line 1"
-    puts $out $text
+    puts $out $program_text
     puts $out "    \}"
     puts $out "\}"
 }
 
 proc cpp_preformat {out text} {
-	puts $out "#include <exception>"
-	puts $out "#include <iostream>"
-	if {[string first vector $text] >= 0} { puts $out "#include <vector>" }
-	if {[regexp "\mmap\M" $text]} { puts $out "#include <map>" }
-	if {[regexp "\mw?string\M" $text]} { puts $out "#include <string>" }
-	if {[string first printf "$text"] >= 0} { puts $out "#include <cstdio>" }
-    	set program_text ""
-	set line_count 0
-	set first_line 1
-	foreach line [split $text "\n"] {
-	    incr line_count
-	    if {[regexp "^#" $line]} {
-		puts $out $line
-	    } else {
-		if {![string length $program_text]} {
-		    set first_line $line_count
-		}
-		append program_text $line "\n"
+    puts $out "#include <exception>"
+    puts $out "#include <iostream>"
+    if {[string first vector $text] >= 0} { puts $out "#include <vector>" }
+    if {[regexp "\mmap\M" $text]} { puts $out "#include <map>" }
+    if {[regexp "\mw?string\M" $text]} { puts $out "#include <string>" }
+    if {[string first printf "$text"] >= 0} { puts $out "#include <cstdio>" }
+    set program_text ""
+    set line_count 0
+    foreach line [split $text "\n"] {
+	incr line_count
+	if {[regexp "^#" $line]} {
+	    puts $out $line
+	} else {
+	    if {![string length $program_text]} {
+		append program_text "#line $line_count\n"
 	    }
+	    append program_text $line "\n"
 	}
-	puts $out "int main (int argc, char* argv\[\])"
-	puts $out "try \{"
-	puts $out "using namespace std;"
-	puts $out "#line $first_line"
-    	puts $out $program_text
-	puts $out ";return 0;"
-	puts $out "\} catch (std::exception& X) \{"
-	puts $out "  std::cerr << \"Exception: \" << X.what() << std::endl;"
-	puts $out "  return 1; \}"
+    }
+    puts $out "int main (int argc, char* argv\[\])"
+    puts $out "try \{"
+    puts $out "using namespace std;"
+    puts $out $program_text
+    puts $out ";return 0;"
+    puts $out "\} catch (std::exception& X) \{"
+    puts $out "  std::cerr << \"Exception: \" << X.what() << std::endl;"
+    puts $out "  return 1; \}"
 }
 
 if {$tcl_platform(platform) eq "windows"} {
