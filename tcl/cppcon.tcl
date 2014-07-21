@@ -50,7 +50,7 @@ if {[catch {package require fileutil}]} {
 
 set have_ttk    [expr $tk_version >= 8.5]
 set have_ctext  [expr ![catch {package require ctext}]]
-set text_font   [expr {[font metrics Consolas -fixed] ? "Consolas" : "TkFixedFont"}]
+set text_font   [expr {[font metrics Consolas -fixed] ? "Consolas 10" : "TkFixedFont"}]
 set text_widget [expr {$have_ctext ? "ctext" : "text"}] 
 set widget_lib  [expr {$have_ttk ? "ttk::" : ""}]
 
